@@ -42,6 +42,7 @@
     </span>
   </label>
   <label>Coût horaire moyen / pers. <input id="rate" type="number" min="0" step="1"></label>
+  <label>Durée prévue (min) <input id="duration_min" type="number" min="0" step="5"></label>
   <label>Devise <input id="currency" maxlength="3"></label>
   <div class="row">
     <button class="primary" id="toggle">▶ Démarrer</button>
@@ -66,7 +67,7 @@
 <script>
 const meeting = new Meeting();
 const $ = (id) => document.getElementById(id);
-const inputs = { participants: $("participants"), rate: $("rate"), currency: $("currency") };
+const inputs = { participants: $("participants"), rate: $("rate"), currency: $("currency"), duration_min: $("duration_min") };
 
 $("u1").textContent = location.origin + "/overlay.html";
 $("u2").textContent = location.origin + "/avatar.html";
@@ -93,7 +94,7 @@ $("reset").onclick = () => { if (confirm("Remettre le compteur à zéro ?")) mee
 function tick() {
   const cur = meeting.s.currency;
   $("cost").textContent = money(meeting.cost, cur);
-  $("meta").textContent = `${money(meeting.perMinute, cur)}/min · ${duration(meeting.elapsed)}`;
+  $("meta").textContent = `${money(meeting.perMinute, cur)}/min · ${timeText(meeting)}`;
   requestAnimationFrame(tick);
 }
 

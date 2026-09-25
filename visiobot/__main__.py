@@ -27,7 +27,7 @@ def main():
 
     config = load_config(args.config)
     m = config["meeting"]
-    hub = Hub(m["participants"], m["rate"], m["currency"])
+    hub = Hub(m["participants"], m["rate"], m["currency"], m["duration_min"])
 
     if args.avatar:
         start_avatar(hub, config, with_stt=not args.no_stt)

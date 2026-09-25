@@ -7,47 +7,70 @@
   Source navigateur OBS, 1920×1080, fond transparent.
   Paramètres d'URL (tous facultatifs) :
     n=6            nombre de participants
+    duree=30       durée prévue en minutes : Gary met ce temps à traverser l'écran
+                   puis s'arrête à droite (0 = il fait des allers-retours)
     taux=50        coût horaire moyen par personne
     devise=EUR     devise (EUR, USD, CHF…)
     auto=1         démarre le chrono tout de suite (mode sans serveur)
     seuils=50,200,500,1000   paliers de colère de M. Krabs
-    vitesse=110    vitesse de Gary en pixels/seconde
+    vitesse=110    vitesse de Gary en allers-retours (duree=0), pixels/seconde
     piece=1        une pièce s'envole tous les X de la devise (0 = aucune)
     krabs=haut-droite   haut-droite | haut-gauche | bas-droite | bas-gauche | cache
     echelle=1      taille globale
-    gary_regarde=droite  sens de ton image assets/gary.* (droite ou gauche)
+    gary_regarde=gauche  sens de l'image assets/gary.* (gauche ou droite)
   Clavier (clic droit sur la source > Interagir) : Espace = pause, +/- = participants, R = remise à zéro.
 -->
+<!-- Police de gravure ancienne pour la bulle façon Monty Python (repli : Georgia si hors ligne) -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&display=swap">
 <link rel="stylesheet" href="overlay.css">
 </head>
 <body>
 <div id="stage">
   <div id="gary">
     <div class="bubble">
-      <div class="price" id="price">0,00 €</div>
-      <div class="meta" id="meta"></div>
+      <div class="paper">
+        <div class="time" id="time"></div>
+        <div class="price" id="price">0,00 €</div>
+        <div class="meta" id="meta"></div>
+      </div>
     </div>
     <div class="sprite" id="garySprite">
-      <svg viewBox="0 0 220 150" aria-label="escargot">
-        <g class="body">
-          <path d="M18 132 Q8 112 36 104 L150 104 Q172 104 178 84 L182 70 Q194 66 198 80 L196 112 Q196 132 170 134 Z" fill="#9ec9e2" stroke="#3b6e8f" stroke-width="4"/>
-          <path d="M40 128 Q100 138 170 128" stroke="#7fb0cf" stroke-width="5" fill="none"/>
-        </g>
-        <g class="stalks">
-          <path d="M182 72 Q176 40 168 22" stroke="#3b6e8f" stroke-width="10" fill="none" stroke-linecap="round"/>
-          <path d="M182 72 Q176 40 168 22" stroke="#9ec9e2" stroke-width="5" fill="none" stroke-linecap="round"/>
-          <path d="M190 72 Q198 44 204 26" stroke="#3b6e8f" stroke-width="10" fill="none" stroke-linecap="round"/>
-          <path d="M190 72 Q198 44 204 26" stroke="#9ec9e2" stroke-width="5" fill="none" stroke-linecap="round"/>
-          <circle cx="166" cy="18" r="13" fill="#f5f0a8" stroke="#3b6e8f" stroke-width="3"/>
-          <circle cx="205" cy="22" r="13" fill="#f5f0a8" stroke="#3b6e8f" stroke-width="3"/>
-          <circle cx="169" cy="19" r="4.5" fill="#d0342c"/>
-          <circle cx="208" cy="23" r="4.5" fill="#d0342c"/>
-        </g>
-        <g class="shell">
-          <circle cx="96" cy="68" r="50" fill="#f3a3ad" stroke="#9c3d5a" stroke-width="5"/>
-          <path d="M96 68 m0 -6 a6 6 0 1 1 -6 6 a12 12 0 1 1 12 12 a20 20 0 1 1 -20 -20 a28 28 0 1 1 28 28"
-                fill="none" stroke="#9c3d5a" stroke-width="5" stroke-linecap="round"/>
-          <ellipse cx="72" cy="40" rx="12" ry="6" fill="#fff" opacity=".45" transform="rotate(-30 72 40)"/>
+      <svg viewBox="270 340 545 445" aria-label="escargot">
+        <!-- Dessiné tourné vers la gauche puis retourné pour regarder vers la droite -->
+        <g transform="translate(1085 0) scale(-1 1)" stroke-linejoin="round">
+          <g class="slime">
+            <path d="M290 745 C285 735 300 728 330 722 L755 722 C790 720 810 735 795 748 C785 755 765 753 750 758 C730 765 715 772 690 766 C670 760 655 775 630 772 C605 770 595 765 575 770 C555 776 540 766 520 765 C500 764 490 775 470 772 C450 768 430 762 410 767 C390 772 370 770 350 762 C330 756 310 762 300 758 C292 755 288 750 290 745 Z"
+                  fill="#b9d67f" stroke="#111" stroke-width="3"/>
+          </g>
+          <g class="stalks">
+            <path d="M388 690 C370 610 340 545 300 505" stroke="#111" stroke-width="16" fill="none" stroke-linecap="round"/>
+            <path d="M388 690 C370 610 340 545 300 505" stroke="#8ac4d6" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M432 705 C420 630 400 560 362 505" stroke="#111" stroke-width="16" fill="none" stroke-linecap="round"/>
+            <path d="M432 705 C420 630 400 560 362 505" stroke="#8ac4d6" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <g class="eyes">
+              <circle cx="287" cy="462" r="40" fill="#e1f4a9" stroke="#111" stroke-width="3"/>
+              <ellipse cx="264" cy="468" rx="14" ry="23" fill="#e03b24"/>
+              <ellipse cx="257" cy="466" rx="9" ry="14" fill="#111"/>
+              <circle cx="358" cy="465" r="47" fill="#e1f4a9" stroke="#111" stroke-width="3"/>
+              <ellipse cx="330" cy="468" rx="15" ry="25" fill="#e03b24"/>
+              <ellipse cx="321" cy="466" rx="9" ry="15" fill="#111"/>
+            </g>
+          </g>
+          <path d="M330 722 C345 705 350 690 382 687 C420 684 440 695 470 698 C520 702 560 720 620 722 L755 722 C745 742 720 752 690 750 L560 752 C470 746 400 746 345 736 Z"
+                fill="#8ac4d6" stroke="#111" stroke-width="3"/>
+          <g class="shell">
+            <path d="M488 686 C466 640 450 580 458 520 C466 440 520 358 610 354 C700 350 770 420 765 520 C760 600 722 652 700 698 C712 700 725 708 718 716 C705 724 660 724 600 721 C555 719 515 710 490 700 C445 696 452 682 488 686 Z"
+                  fill="#de8f8f" stroke="#9c3a44" stroke-width="3"/>
+            <path d="M603 716 C565 660 548 590 572 535 C595 490 655 468 683 505 C708 540 695 605 668 632 C645 652 615 635 613 603 C611 575 628 560 643 550"
+                  fill="none" stroke="#a8252a" stroke-width="22" stroke-linecap="round"/>
+            <g fill="#a374e6">
+              <ellipse cx="640" cy="419" rx="20" ry="14"/>
+              <ellipse cx="567" cy="458" rx="14" ry="19" transform="rotate(20 567 458)"/>
+              <ellipse cx="705" cy="459" rx="15" ry="17"/>
+              <ellipse cx="530" cy="535" rx="14" ry="21"/>
+              <ellipse cx="722" cy="524" rx="13" ry="16"/>
+            </g>
+          </g>
         </g>
       </svg>
     </div>
@@ -137,7 +160,7 @@ async function loadCustomImages() {
     if (img) {
       const sprite = document.getElementById("garySprite");
       sprite.replaceChildren(img);
-      if (param("gary_regarde", "droite") === "gauche") sprite.classList.add("faces-left");
+      if (param("gary_regarde", "gauche") === "gauche") sprite.classList.add("faces-left");
       break;
     }
   }
@@ -172,15 +195,24 @@ let x = 40, dir = 1, last = performance.now();
 function moveGary(now) {
   const dt = Math.min(0.1, (now - last) / 1000);
   last = now;
-  if (meeting.s.running) {
-    const max = window.innerWidth - gary.offsetWidth - 20;
+  const max = window.innerWidth - gary.offsetWidth - 20;
+  const progress = meeting.progress;
+  let moving = meeting.s.running;
+  if (progress !== null) {
+    // Durée prévue : la position suit l'avancement de la réunion, arrêt à droite à la fin.
+    x = 20 + Math.min(1, progress) * (max - 20);
+    dir = 1;
+    moving = moving && progress < 1;
+  } else if (moving) {
     x += dir * speed * dt;
     if (x > max) { x = max; dir = -1; }
     if (x < 20) { x = 20; dir = 1; }
   }
   gary.style.transform = `translateX(${x}px)`;
   gary.classList.toggle("left", dir < 0);
-  gary.classList.toggle("paused", !meeting.s.running);
+  gary.classList.toggle("stopped", !moving); // Gary immobile (pause ou arrivé au bout)
+  gary.classList.toggle("paused", !meeting.s.running); // chrono en pause
+  gary.classList.toggle("over", progress !== null && progress >= 1);
 }
 
 // --- Pièces qui s'envolent ---------------------------------------------------------
@@ -227,14 +259,21 @@ function krabs(cost) {
 // --- Boucle principale -------------------------------------------------------------
 const priceEl = document.getElementById("price");
 const metaEl = document.getElementById("meta");
-let lastMeta = "";
+const timeEl = document.getElementById("time");
+let lastMeta = "", lastTime = "", lastUnit = 0;
 
 function frame(now) {
   moveGary(now);
   const cost = meeting.cost;
   const cur = meeting.s.currency;
   priceEl.textContent = money(cost, cur);
-  const meta = `${meeting.s.participants} pers. · ${money(meeting.perMinute, cur)}/min · ${duration(meeting.elapsed)}`;
+  // Petit sursaut du chiffre à chaque unité de devise dépensée
+  const unit = Math.floor(cost);
+  if (unit > lastUnit) { priceEl.classList.remove("tick"); void priceEl.offsetWidth; priceEl.classList.add("tick"); }
+  lastUnit = unit;
+  const time = timeText(meeting);
+  if (time !== lastTime) { timeEl.textContent = time; lastTime = time; }
+  const meta = `${meeting.s.participants} pers. à ${money(meeting.s.rate, cur)}/h`;
   if (meta !== lastMeta) { metaEl.textContent = meta; lastMeta = meta; }
   coins(cost);
   krabs(cost);

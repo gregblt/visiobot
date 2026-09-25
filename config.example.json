@@ -3,6 +3,7 @@
     "participants": 6,
     "rate": 50,
     "currency": "EUR",
+    "duration_min": 30,
     "krabs_thresholds": [
       50,
       200,

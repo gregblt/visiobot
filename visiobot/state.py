@@ -9,13 +9,14 @@ import time
 class Hub:
     """Garde l'état courant et le pousse à tous les clients SSE connectés."""
 
-    def __init__(self, participants=6, rate=50.0, currency="EUR"):
+    def __init__(self, participants=6, rate=50.0, currency="EUR", duration_min=30):
         self._lock = threading.Lock()
         self._clients = set()
         self.meeting = {
             "participants": participants,
             "rate": rate,  # coût horaire moyen par personne
             "currency": currency,
+            "duration_min": duration_min,  # durée prévue : Gary met ce temps à traverser l'écran
             "running": False,
             "elapsed": 0.0,  # secondes de réunion
             "cost": 0.0,  # coût cumulé
@@ -75,6 +76,8 @@ class Hub:
                 m["participants"] = max(0, int(data["participants"]))
             if "rate" in data:
                 m["rate"] = max(0.0, float(data["rate"]))
+            if "duration_min" in data:
+                m["duration_min"] = max(0.0, float(data["duration_min"]))
             if "currency" in data:
                 m["currency"] = str(data["currency"])[:3].upper() or "EUR"
             action = data.get("action")

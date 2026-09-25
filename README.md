@@ -76,8 +76,12 @@ Dans OBS, clique sur **Démarrer la caméra virtuelle**, puis choisis la caméra
 
 ## Le compteur de réunion
 
-Dans le panneau de contrôle, règle **le nombre de participants** et **le coût horaire moyen par personne**,
-puis clique sur **▶ Démarrer**. Quand quelqu'un arrive en cours de route, fais « + » : le coût déjà écoulé
+Dans le panneau de contrôle, règle **le nombre de participants**, **le coût horaire moyen par personne**
+et **la durée prévue** de la réunion, puis clique sur **▶ Démarrer**.
+
+Gary met exactement la durée prévue à traverser l'écran de gauche à droite : on voit d'un coup d'œil
+où on en est. Arrivé au bout, il s'arrête. Si la réunion déborde, le compteur continue en rouge
+et affiche le dépassement (`dépassement +05:12`). Mets une durée de `0` pour que Gary fasse des allers-retours à la place. Quand quelqu'un arrive en cours de route, fais « + » : le coût déjà écoulé
 n'est pas recalculé, seul le rythme change.
 
 `coût = Σ (participants × coût horaire / 3600) par seconde écoulée`
@@ -89,18 +93,18 @@ Valeurs par défaut et paliers de colère de Krabs : section `meeting` de `confi
 | Paramètre | Défaut | Effet |
 |---|---|---|
 | `seuils` | `50,200,500,1000` | paliers où Krabs monte d'un cran (5 états) |
-| `vitesse` | `110` | vitesse de Gary (pixels / seconde) |
+| `vitesse` | `110` | vitesse de Gary en allers-retours, quand la durée est à 0 (pixels / seconde) |
 | `piece` | `1` | une pièce s'envole tous les X € (`0` = aucune) |
 | `krabs` | `haut-droite` | `haut-gauche`, `bas-droite`, `bas-gauche` ou `cache` |
 | `echelle` | `1` | agrandit ou réduit tout |
-| `gary_regarde` | `droite` | sens de ton image perso de Gary |
+| `gary_regarde` | `gauche` | sens de l'image `web/assets/gary.gif` |
 
 Exemple : `http://127.0.0.1:8765/overlay.html?krabs=haut-gauche&echelle=0.8&seuils=20,100,300,600`
 
 ### Sans serveur
 
 `overlay.html` marche aussi en l'ouvrant directement comme **fichier local** dans la source navigateur,
-avec les paramètres `n=` (participants), `taux=` (coût horaire) et `devise=`.
+avec les paramètres `n=` (participants), `taux=` (coût horaire), `duree=` (minutes) et `devise=`.
 Le chrono démarre tout seul. Pour le piloter, fais un clic droit sur la source > **Interagir**, puis :
 `Espace` = pause, `+` / `-` = participants, `R` = remise à zéro.
 
@@ -109,7 +113,7 @@ Le chrono démarre tout seul. Pour le piloter, fais un clic droit sur la source 
 Les personnages fournis sont des dessins « inspirés de ». Pour utiliser tes propres images
 (GIF, PNG ou WebP à fond transparent), dépose-les dans `web/assets/` :
 
-- `gary.gif` (ou `.png` / `.webp`), tourné vers la droite (sinon ajoute `gary_regarde=gauche`) ;
+- `gary.gif` (ou `.png` / `.webp`), tourné vers la gauche (sinon ajoute `gary_regarde=droite`). Le Gary animé est déjà fourni ;
 - `krabs-0.png` (calme) → `krabs-4.png` (rage). S'il en manque, le palier précédent est réutilisé.
 
 Ces personnages appartiennent à Nickelodeon : pour un usage perso en réunion, pas de souci,

@@ -9,6 +9,7 @@ DEFAULTS = {
         "participants": 6,
         "rate": 50,
         "currency": "EUR",
+        "duration_min": 30,  # durée prévue de la réunion (minutes)
         # Paliers de coût (dans la devise) où M. Krabs monte d'un cran de colère
         "krabs_thresholds": [50, 200, 500, 1000],
     },

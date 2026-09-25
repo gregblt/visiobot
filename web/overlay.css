@@ -29,7 +29,7 @@ html, body {
 }
 
 #gary .sprite {
-  width: calc(190px * var(--scale));
+  width: calc(200px * var(--scale));
   line-height: 0;
   animation: crawl 0.9s ease-in-out infinite;
   transform-origin: bottom center;
@@ -38,50 +38,82 @@ html, body {
 #gary.left .sprite svg, #gary.left .sprite img { transform: scaleX(-1); }
 #gary .sprite.faces-left img { transform: scaleX(-1); }
 #gary.left .sprite.faces-left img { transform: none; }
-#gary.paused .sprite { animation: none; }
+#gary.stopped .sprite { animation: none; }
 
 @keyframes crawl {
   0%, 100% { transform: scale(1, 1); }
   50% { transform: scale(1.05, 0.95); }
 }
 
-#gary .stalks { transform-origin: 185px 75px; animation: wiggle 1.8s ease-in-out infinite; }
-@keyframes wiggle { 0%, 100% { transform: rotate(-4deg); } 50% { transform: rotate(5deg); } }
+/* Gary vivant : antennes qui bougent, clignement des yeux, bave qui ondule */
+#gary svg { overflow: visible; }
+#gary .stalks { transform-box: fill-box; transform-origin: 90% 100%; animation: wiggle 1.8s ease-in-out infinite; }
+@keyframes wiggle { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(4deg); } }
+#gary .eyes { transform-box: fill-box; transform-origin: center; animation: blink 4.5s infinite; }
+@keyframes blink { 0%, 94%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
+#gary .shell { transform-box: fill-box; transform-origin: 50% 100%; animation: shell 0.9s ease-in-out infinite; }
+@keyframes shell { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-2deg) translateY(-1.5%); } }
+#gary .slime { transform-box: fill-box; transform-origin: center; animation: slime 0.9s ease-in-out infinite; }
+@keyframes slime { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(1.03); } }
+#gary.stopped .shell, #gary.stopped .slime { animation: none; }
 
+/* Bulle façon Monty Python : papier découpé aux ciseaux, contour à l'encre, ombre de collage */
 .bubble {
-  position: relative;
-  margin-bottom: calc(10px * var(--scale));
-  padding: calc(8px * var(--scale)) calc(18px * var(--scale));
-  background: var(--paper);
-  color: var(--ink);
-  border: calc(4px * var(--scale)) solid var(--ink);
-  border-radius: calc(18px * var(--scale));
-  box-shadow: 0 calc(5px * var(--scale)) 0 var(--ink);
+  --ink-w: calc(3px * var(--scale));
+  --tail: calc(30px * var(--scale));
+  margin-bottom: calc(4px * var(--scale));
+  transform: rotate(-2deg);
+  filter:
+    drop-shadow(var(--ink-w) 0 0 #1a1208) drop-shadow(calc(var(--ink-w) * -1) 0 0 #1a1208)
+    drop-shadow(0 var(--ink-w) 0 #1a1208) drop-shadow(0 calc(var(--ink-w) * -1) 0 #1a1208)
+    drop-shadow(calc(7px * var(--scale)) calc(8px * var(--scale)) 0 rgba(0, 0, 0, 0.35));
+  animation: bubble-sway 3s ease-in-out infinite;
+}
+@keyframes bubble-sway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(1deg) translateY(-2px); } }
+.paper {
+  padding: calc(10px * var(--scale)) calc(30px * var(--scale)) calc(10px * var(--scale) + var(--tail));
+  color: #2a1a0c;
   text-align: center;
   white-space: nowrap;
+  /* parchemin jauni, taches et bords brunis */
+  background:
+    radial-gradient(circle at 18% 30%, rgba(150, 100, 40, 0.18) 0 6%, transparent 7%),
+    radial-gradient(circle at 82% 65%, rgba(150, 100, 40, 0.14) 0 5%, transparent 6%),
+    radial-gradient(ellipse at center, #f6ead0 45%, #e3c996 100%);
+  /* découpe irrégulière + queue qui pointe vers Gary */
+  clip-path: polygon(
+    2% 8%, 9% 1%, 22% 4%, 35% 0%, 49% 3%, 63% 0%, 76% 4%, 90% 1%, 98% 7%,
+    100% 25%, 97% 45%, 100% 62%, 98% calc(100% - var(--tail) - 4%),
+    88% calc(100% - var(--tail)), 74% calc(100% - var(--tail) - 3px), 60% calc(100% - var(--tail)),
+    53% calc(100% - var(--tail)), 47% 100%, 45% calc(100% - var(--tail)),
+    32% calc(100% - var(--tail) - 3px), 18% calc(100% - var(--tail)), 4% calc(100% - var(--tail) - 3%),
+    0% 70%, 3% 50%, 0% 30%
+  );
 }
-.bubble::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  bottom: calc(-16px * var(--scale));
-  transform: translateX(-50%);
-  border: calc(10px * var(--scale)) solid transparent;
-  border-top-color: var(--ink);
+.time {
+  font-family: "IM Fell English SC", Georgia, "Times New Roman", serif;
+  font-size: calc(22px * var(--scale));
+  letter-spacing: 1px;
+  font-variant-numeric: tabular-nums;
 }
 .price {
-  font-size: calc(44px * var(--scale));
-  font-weight: 800;
-  font-variant-numeric: tabular-nums;
-  letter-spacing: 0.5px;
+  display: inline-block;
+  font-family: "IM Fell English", Georgia, "Times New Roman", serif;
+  font-size: calc(50px * var(--scale));
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums lining-nums;
+  color: #7a1409;
 }
+.price.tick { animation: tick 0.35s ease-out; }
+@keyframes tick { 0% { transform: scale(1); } 35% { transform: scale(1.12) rotate(-2deg); } 100% { transform: scale(1); } }
 .meta {
+  font-family: "IM Fell English", Georgia, "Times New Roman", serif;
+  font-style: italic;
   font-size: calc(17px * var(--scale));
-  opacity: 0.75;
-  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
 }
 #gary.paused .price { opacity: 0.55; }
-#gary.paused .meta::after { content: " · en pause"; }
+#gary.paused .time::after { content: " · en pause"; }
 
 /* ---------- Pièces ---------- */
 
@@ -197,3 +229,7 @@ html, body {
   70% { opacity: 1; transform: scale(1.08); }
   100% { opacity: 1; transform: scale(1); }
 }
+
+/* Durée prévue dépassée : Gary est arrivé, le compteur continue en rouge */
+#gary.over .price { color: #b3120b; }
+#gary.over .time { color: #b3120b; font-weight: 700; }

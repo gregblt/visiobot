@@ -35,6 +35,7 @@ class Meeting {
       participants: +param("n", 6),
       rate: +param("taux", 50),
       currency: param("devise", "EUR"),
+      duration_min: +param("duree", 30),
       running: param("auto", "1") === "1",
       elapsed: 0,
       cost: 0,
@@ -55,6 +56,11 @@ class Meeting {
   }
   get elapsed() { this._fold(); return this.s.elapsed; }
   get cost() { this._fold(); return this.s.cost; }
+  // Avancement de 0 à 1 par rapport à la durée prévue (null si pas de durée).
+  get progress() {
+    const d = this.s.duration_min * 60;
+    return d > 0 ? this.elapsed / d : null;
+  }
   get perMinute() { return (this.s.participants * this.s.rate) / 60; }
   // Changement local (mode sans serveur) ou envoyé au serveur.
   update(change) {
@@ -62,6 +68,7 @@ class Meeting {
     this._fold();
     if ("participants" in change) this.s.participants = Math.max(0, change.participants);
     if ("rate" in change) this.s.rate = Math.max(0, change.rate);
+    if ("duration_min" in change) this.s.duration_min = Math.max(0, change.duration_min);
     let action = change.action;
     if (action === "toggle") action = this.s.running ? "pause" : "start";
     if (action === "start") this.s.running = true;
@@ -107,4 +114,13 @@ function meetingKeys(meeting) {
     else return;
     e.preventDefault();
   });
+}
+
+// « 12:34 / 30:00 », ou « dépassement +02:10 » une fois la durée prévue passée.
+function timeText(meeting) {
+  const elapsed = meeting.elapsed;
+  const planned = meeting.s.duration_min * 60;
+  if (!planned) return duration(elapsed);
+  if (elapsed > planned) return `dépassement +${duration(elapsed - planned)}`;
+  return `${duration(elapsed)} / ${duration(planned)}`;
 }

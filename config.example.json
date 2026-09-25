@@ -1,0 +1,171 @@
+{
+  "meeting": {
+    "participants": 6,
+    "rate": 50,
+    "currency": "EUR",
+    "krabs_thresholds": [
+      50,
+      200,
+      500,
+      1000
+    ]
+  },
+  "audio": {
+    "meeting_device": "CABLE Output",
+    "mic_device": null,
+    "speech_threshold": 0.01,
+    "silence_seconds": 0.7,
+    "max_segment_seconds": 10
+  },
+  "stt": {
+    "model": "small",
+    "language": "fr",
+    "device": "cpu",
+    "compute_type": "int8"
+  },
+  "avatar": {
+    "my_name": [
+      "Grégory",
+      "Greg"
+    ],
+    "expressions": [
+      "neutre",
+      "sourit",
+      "rit",
+      "acquiesce",
+      "surpris",
+      "choque",
+      "sceptique",
+      "inquiet",
+      "reflechit",
+      "ennuye",
+      "endormi"
+    ],
+    "reaction_seconds": 4,
+    "bored_after_seconds": 240,
+    "asleep_after_seconds": 480,
+    "talk_threshold": 0.02,
+    "rules": [
+      {
+        "expression": "rit",
+        "keywords": [
+          "haha",
+          "hahaha",
+          "mdr",
+          "ptdr",
+          "lol",
+          "trop drole",
+          "c'est drole",
+          "blague",
+          "rigole"
+        ]
+      },
+      {
+        "expression": "sourit",
+        "keywords": [
+          "merci",
+          "bravo",
+          "super",
+          "genial",
+          "top",
+          "parfait",
+          "excellent",
+          "felicitations",
+          "bonne nouvelle"
+        ]
+      },
+      {
+        "expression": "acquiesce",
+        "keywords": [
+          "d'accord",
+          "ok",
+          "exactement",
+          "tout a fait",
+          "effectivement",
+          "ca marche",
+          "valide",
+          "on est d'accord"
+        ]
+      },
+      {
+        "expression": "inquiet",
+        "keywords": [
+          "budget",
+          "retard",
+          "deadline",
+          "urgent",
+          "risque",
+          "probleme",
+          "bug",
+          "incident",
+          "en production",
+          "licenciement"
+        ]
+      },
+      {
+        "expression": "choque",
+        "keywords": [
+          "catastrophe",
+          "c'est la cata",
+          "tout est casse",
+          "on a perdu",
+          "annule",
+          "virer",
+          "surcout"
+        ]
+      },
+      {
+        "expression": "sceptique",
+        "keywords": [
+          "synergie",
+          "disruptif",
+          "paradigme",
+          "on verra",
+          "quick win",
+          "low hanging fruit",
+          "a l'echelle",
+          "blockchain"
+        ]
+      },
+      {
+        "expression": "surpris",
+        "keywords": [
+          "vraiment",
+          "incroyable",
+          "serieusement",
+          "sans blague",
+          "ah bon",
+          "nouveau"
+        ]
+      },
+      {
+        "expression": "reflechit",
+        "keywords": [
+          "question",
+          "qu'en pensez-vous",
+          "vous en pensez quoi",
+          "des idees",
+          "une idee",
+          "comment on fait"
+        ]
+      },
+      {
+        "expression": "ennuye",
+        "keywords": [
+          "point suivant",
+          "ordre du jour",
+          "on va faire un tour de table",
+          "prochaine slide",
+          "on reprend",
+          "je partage mon ecran"
+        ]
+      }
+    ]
+  },
+  "llm": {
+    "enabled": false,
+    "url": "http://localhost:11434/api/generate",
+    "model": "llama3.2:3b",
+    "every_seconds": 12
+  }
+}

@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visiobot</title>
+<style>
+  :root { color-scheme: dark; --bg: #1f2230; --card: #2a2e3f; --line: #3b4055; --text: #e8eaf2; --muted: #9aa0b6; --accent: #f2b705; }
+  * { box-sizing: border-box; }
+  body { margin: 0; padding: 12px; background: var(--bg); color: var(--text); font: 14px/1.4 system-ui, sans-serif; }
+  h1 { font-size: 16px; margin: 0 0 10px; }
+  h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin: 0 0 8px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 12px; margin-bottom: 12px; }
+  .cost { font-size: 32px; font-weight: 800; color: var(--accent); font-variant-numeric: tabular-nums; }
+  .meta { color: var(--muted); font-variant-numeric: tabular-nums; margin-bottom: 10px; }
+  label { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 6px 0; }
+  input { width: 90px; padding: 6px 8px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+  .stepper { display: flex; gap: 4px; }
+  .stepper input { width: 60px; text-align: center; }
+  button { padding: 7px 10px; background: var(--bg); color: var(--text); border: 1px solid var(--line); border-radius: 6px; font: inherit; cursor: pointer; }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); color: #1d2433; border-color: var(--accent); font-weight: 700; }
+  .row { display: flex; gap: 6px; flex-wrap: wrap; }
+  .row button { flex: 1; }
+  .faces { display: grid; grid-template-columns: repeat(auto-fill, minmax(92px, 1fr)); gap: 6px; }
+  .faces button.on { border-color: var(--accent); color: var(--accent); }
+  #heard { color: var(--muted); font-style: italic; min-height: 1.4em; margin-top: 8px; }
+  code { display: block; padding: 6px 8px; margin: 4px 0 8px; background: var(--bg); border-radius: 6px; font-size: 12px; overflow-wrap: anywhere; user-select: all; }
+  #offline { color: #ff7a6b; }
+</style>
+</head>
+<body>
+<h1>🐌 Visiobot <span id="offline" hidden>· serveur injoignable</span></h1>
+
+<section>
+  <h2>Coût de la réunion</h2>
+  <div class="cost" id="cost">0,00 €</div>
+  <div class="meta" id="meta"></div>
+  <label>Participants
+    <span class="stepper">
+      <button data-step="-1">−</button><input id="participants" type="number" min="0" step="1"><button data-step="1">+</button>
+    </span>
+  </label>
+  <label>Coût horaire moyen / pers. <input id="rate" type="number" min="0" step="1"></label>
+  <label>Devise <input id="currency" maxlength="3"></label>
+  <div class="row">
+    <button class="primary" id="toggle">▶ Démarrer</button>
+    <button id="reset">↺ Remise à zéro</button>
+  </div>
+</section>
+
+<section>
+  <h2>Avatar</h2>
+  <div class="faces" id="faces"></div>
+  <div id="heard"></div>
+</section>
+
+<section>
+  <h2>Sources OBS</h2>
+  Réunion (1920×1080) <code id="u1"></code>
+  Avatar (1080×1080) <code id="u2"></code>
+  Ce panneau en dock OBS <code id="u3"></code>
+</section>
+
+<script src="common.js"></script>
+<script>
+const meeting = new Meeting();
+const $ = (id) => document.getElementById(id);
+const inputs = { participants: $("participants"), rate: $("rate"), currency: $("currency") };
+
+$("u1").textContent = location.origin + "/overlay.html";
+$("u2").textContent = location.origin + "/avatar.html";
+$("u3").textContent = location.origin + "/control.html";
+
+function fill() {
+  for (const [k, input] of Object.entries(inputs)) {
+    if (document.activeElement !== input) input.value = meeting.s[k];
+  }
+  $("toggle").textContent = meeting.s.running ? "⏸ Pause" : "▶ Démarrer";
+}
+
+for (const [k, input] of Object.entries(inputs)) {
+  input.addEventListener("change", () => {
+    const v = k === "currency" ? input.value.toUpperCase() : +input.value;
+    meeting.update({ [k]: v });
+  });
+}
+document.querySelectorAll("[data-step]").forEach((b) =>
+  b.addEventListener("click", () => meeting.update({ participants: meeting.s.participants + +b.dataset.step })));
+$("toggle").onclick = () => meeting.update({ action: "toggle" });
+$("reset").onclick = () => { if (confirm("Remettre le compteur à zéro ?")) meeting.update({ action: "reset" }); };
+
+function tick() {
+  const cur = meeting.s.currency;
+  $("cost").textContent = money(meeting.cost, cur);
+  $("meta").textContent = `${money(meeting.perMinute, cur)}/min · ${duration(meeting.elapsed)}`;
+  requestAnimationFrame(tick);
+}
+
+let current = "neutre";
+function faces(list) {
+  $("faces").replaceChildren(...list.map((name) => {
+    const b = document.createElement("button");
+    b.textContent = name;
+    b.dataset.name = name;
+    b.onclick = () => api("/api/react", { expression: name, duration: name === "neutre" ? null : 6 });
+    return b;
+  }));
+  highlight();
+}
+function highlight() {
+  document.querySelectorAll("#faces button").forEach((b) => b.classList.toggle("on", b.dataset.name === current));
+}
+
+async function init() {
+  try {
+    faces((await api("/api/config")).expressions);
+  } catch {
+    $("offline").hidden = false;
+  }
+  connect({
+    meeting: (m) => { meeting.set(m); fill(); },
+    avatar: (a) => { current = a.expression; highlight(); },
+    transcript: (t) => { $("heard").textContent = "« " + t.text + " »"; },
+  });
+  fill();
+  tick();
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Coût de la réunion</title>
+<!--
+  Source navigateur OBS, 1920×1080, fond transparent.
+  Paramètres d'URL (tous facultatifs) :
+    n=6            nombre de participants
+    taux=50        coût horaire moyen par personne
+    devise=EUR     devise (EUR, USD, CHF…)
+    auto=1         démarre le chrono tout de suite (mode sans serveur)
+    seuils=50,200,500,1000   paliers de colère de M. Krabs
+    vitesse=110    vitesse de Gary en pixels/seconde
+    piece=1        une pièce s'envole tous les X de la devise (0 = aucune)
+    krabs=haut-droite   haut-droite | haut-gauche | bas-droite | bas-gauche | cache
+    echelle=1      taille globale
+    gary_regarde=droite  sens de ton image assets/gary.* (droite ou gauche)
+  Clavier (clic droit sur la source > Interagir) : Espace = pause, +/- = participants, R = remise à zéro.
+-->
+<link rel="stylesheet" href="overlay.css">
+</head>
+<body>
+<div id="stage">
+  <div id="gary">
+    <div class="bubble">
+      <div class="price" id="price">0,00 €</div>
+      <div class="meta" id="meta"></div>
+    </div>
+    <div class="sprite" id="garySprite">
+      <svg viewBox="0 0 220 150" aria-label="escargot">
+        <g class="body">
+          <path d="M18 132 Q8 112 36 104 L150 104 Q172 104 178 84 L182 70 Q194 66 198 80 L196 112 Q196 132 170 134 Z" fill="#9ec9e2" stroke="#3b6e8f" stroke-width="4"/>
+          <path d="M40 128 Q100 138 170 128" stroke="#7fb0cf" stroke-width="5" fill="none"/>
+        </g>
+        <g class="stalks">
+          <path d="M182 72 Q176 40 168 22" stroke="#3b6e8f" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path d="M182 72 Q176 40 168 22" stroke="#9ec9e2" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <path d="M190 72 Q198 44 204 26" stroke="#3b6e8f" stroke-width="10" fill="none" stroke-linecap="round"/>
+          <path d="M190 72 Q198 44 204 26" stroke="#9ec9e2" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <circle cx="166" cy="18" r="13" fill="#f5f0a8" stroke="#3b6e8f" stroke-width="3"/>
+          <circle cx="205" cy="22" r="13" fill="#f5f0a8" stroke="#3b6e8f" stroke-width="3"/>
+          <circle cx="169" cy="19" r="4.5" fill="#d0342c"/>
+          <circle cx="208" cy="23" r="4.5" fill="#d0342c"/>
+        </g>
+        <g class="shell">
+          <circle cx="96" cy="68" r="50" fill="#f3a3ad" stroke="#9c3d5a" stroke-width="5"/>
+          <path d="M96 68 m0 -6 a6 6 0 1 1 -6 6 a12 12 0 1 1 12 12 a20 20 0 1 1 -20 -20 a28 28 0 1 1 28 28"
+                fill="none" stroke="#9c3d5a" stroke-width="5" stroke-linecap="round"/>
+          <ellipse cx="72" cy="40" rx="12" ry="6" fill="#fff" opacity=".45" transform="rotate(-30 72 40)"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div id="krabs" data-level="0">
+    <div class="speech" id="speech"></div>
+    <div class="sprite" id="krabsSprite">
+      <svg viewBox="0 0 260 240" aria-label="crabe">
+        <g class="steam">
+          <circle cx="40" cy="60" r="14"/><circle cx="28" cy="36" r="18"/><circle cx="44" cy="12" r="12"/>
+          <circle cx="220" cy="60" r="14"/><circle cx="232" cy="36" r="18"/><circle cx="216" cy="12" r="12"/>
+        </g>
+        <g class="claws">
+          <g class="claw left">
+            <path d="M70 150 Q40 150 34 124" stroke="#8a1c14" stroke-width="16" fill="none" stroke-linecap="round"/>
+            <path d="M70 150 Q40 150 34 124" class="skin-stroke" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M34 128 Q2 110 12 76 Q30 92 36 104 Q44 84 60 90 Q54 118 34 128 Z" class="skin" stroke="#8a1c14" stroke-width="4"/>
+          </g>
+          <g class="claw right">
+            <path d="M190 150 Q220 150 226 124" stroke="#8a1c14" stroke-width="16" fill="none" stroke-linecap="round"/>
+            <path d="M190 150 Q220 150 226 124" class="skin-stroke" stroke-width="10" fill="none" stroke-linecap="round"/>
+            <path d="M226 128 Q258 110 248 76 Q230 92 224 104 Q216 84 200 90 Q206 118 226 128 Z" class="skin" stroke="#8a1c14" stroke-width="4"/>
+          </g>
+        </g>
+        <g class="legs" stroke="#8a1c14" stroke-width="9" stroke-linecap="round">
+          <path d="M104 206 L100 232"/><path d="M156 206 L160 232"/>
+        </g>
+        <path d="M130 88 Q200 88 196 160 Q190 214 130 214 Q70 214 64 160 Q60 88 130 88 Z" class="skin" stroke="#8a1c14" stroke-width="5"/>
+        <g class="eyes">
+          <path d="M112 96 L106 42" stroke="#8a1c14" stroke-width="10" stroke-linecap="round"/>
+          <path d="M148 96 L154 42" stroke="#8a1c14" stroke-width="10" stroke-linecap="round"/>
+          <path d="M112 96 L106 42" class="skin-stroke" stroke-width="5" stroke-linecap="round"/>
+          <path d="M148 96 L154 42" class="skin-stroke" stroke-width="5" stroke-linecap="round"/>
+          <circle cx="104" cy="34" r="15" fill="#fff" stroke="#8a1c14" stroke-width="3"/>
+          <circle cx="156" cy="34" r="15" fill="#fff" stroke="#8a1c14" stroke-width="3"/>
+          <circle class="pupil" cx="106" cy="35" r="6" fill="#1b2a4a"/>
+          <circle class="pupil" cx="154" cy="35" r="6" fill="#1b2a4a"/>
+          <path class="brow brow-l" d="M88 20 L118 16" stroke="#3a0b07" stroke-width="6" stroke-linecap="round"/>
+          <path class="brow brow-r" d="M172 20 L142 16" stroke="#3a0b07" stroke-width="6" stroke-linecap="round"/>
+        </g>
+        <g class="mouths" stroke="#3a0b07" stroke-width="5" stroke-linecap="round" fill="none">
+          <path class="m0" d="M100 150 Q130 176 160 150"/>
+          <path class="m1" d="M104 158 Q130 164 156 158"/>
+          <path class="m2" d="M104 166 Q130 150 156 166"/>
+          <path class="m3" d="M106 146 Q130 136 154 146 Q150 178 130 178 Q110 178 106 146 Z" fill="#3a0b07"/>
+          <path class="m4" d="M98 140 Q130 126 162 140 Q158 196 130 196 Q102 196 98 140 Z" fill="#3a0b07"/>
+          <path class="m4 tongue" d="M112 184 Q130 170 148 184" stroke="#e8707c" stroke-width="8"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div id="coins"></div>
+</div>
+
+<script src="common.js"></script>
+<script>
+const meeting = new Meeting();
+const scale = +param("echelle", 1);
+const speed = +param("vitesse", 110) * scale;
+const coinStep = +param("piece", 1);
+let thresholds = param("seuils", "").split(",").map(Number).filter((x) => x > 0);
+
+document.documentElement.style.setProperty("--scale", scale);
+const krabsPos = param("krabs", "haut-droite");
+const krabsEl = document.getElementById("krabs");
+if (krabsPos === "cache") krabsEl.hidden = true;
+else krabsEl.classList.add(...krabsPos.split("-"));
+
+const PHRASES = [
+  "Ah, une réunion… Tout va bien, moussaillons.",
+  "Hmm… ça commence à chiffrer, tout ça.",
+  "Chaque minute me coûte, moussaillons !",
+  "MON ARGENT !!! Abrégez !",
+  "FAILLITE !!! TOUT LE MONDE DEHORS !!!",
+];
+
+// --- Images personnalisées (facultatif) -----------------------------------------
+// web/assets/gary.gif|png|webp et web/assets/krabs-0..4.png|gif|webp remplacent les dessins.
+async function loadCustomImages() {
+  let available = null; // en mode serveur on connaît la liste, ce qui évite des requêtes inutiles
+  if (SERVER) { try { available = new Set((await api("/api/config")).assets); } catch {} }
+  const tryImage_ = (src) => (available && !available.has(src.slice(7)) ? null : tryImage(src));
+  for (const ext of ["gif", "webp", "png"]) {
+    const img = await tryImage_(`assets/gary.${ext}`);
+    if (img) {
+      const sprite = document.getElementById("garySprite");
+      sprite.replaceChildren(img);
+      if (param("gary_regarde", "droite") === "gauche") sprite.classList.add("faces-left");
+      break;
+    }
+  }
+  const krabsImgs = [];
+  for (let lvl = 0; lvl <= 4; lvl++) {
+    for (const ext of ["gif", "webp", "png"]) {
+      const img = await tryImage_(`assets/krabs-${lvl}.${ext}`);
+      if (img) { krabsImgs[lvl] = img; break; }
+    }
+  }
+  if (krabsImgs.some(Boolean)) {
+    const sprite = document.getElementById("krabsSprite");
+    sprite.classList.add("custom");
+    krabsImgs.forEach((img, lvl) => { if (img) { img.dataset.level = lvl; sprite.appendChild(img); } });
+    // Paliers sans image : on réutilise l'image du palier précédent.
+    for (let lvl = 0; lvl <= 4; lvl++) {
+      if (!krabsImgs[lvl]) {
+        const prev = krabsImgs.slice(0, lvl).reverse().find(Boolean) || krabsImgs.find(Boolean);
+        const clone = prev.cloneNode();
+        clone.dataset.level = lvl;
+        sprite.appendChild(clone);
+      }
+    }
+    sprite.querySelector("svg").remove();
+  }
+}
+
+// --- Gary ------------------------------------------------------------------------
+const gary = document.getElementById("gary");
+let x = 40, dir = 1, last = performance.now();
+
+function moveGary(now) {
+  const dt = Math.min(0.1, (now - last) / 1000);
+  last = now;
+  if (meeting.s.running) {
+    const max = window.innerWidth - gary.offsetWidth - 20;
+    x += dir * speed * dt;
+    if (x > max) { x = max; dir = -1; }
+    if (x < 20) { x = 20; dir = 1; }
+  }
+  gary.style.transform = `translateX(${x}px)`;
+  gary.classList.toggle("left", dir < 0);
+  gary.classList.toggle("paused", !meeting.s.running);
+}
+
+// --- Pièces qui s'envolent ---------------------------------------------------------
+let lastCoin = 0, lastCoinAt = 0;
+function coins(cost) {
+  if (coinStep <= 0) return;
+  const step = Math.floor(cost / coinStep);
+  if (step < lastCoin) lastCoin = step; // remise à zéro
+  const now = performance.now();
+  if (step > lastCoin && now - lastCoinAt > 180) {
+    lastCoin = step;
+    lastCoinAt = now;
+    const c = document.createElement("div");
+    c.className = "coin";
+    c.textContent = "🪙";
+    const box = gary.getBoundingClientRect();
+    c.style.left = box.left + box.width / 2 + (Math.random() * 60 - 30) + "px";
+    c.style.top = box.top + "px";
+    document.getElementById("coins").appendChild(c);
+    setTimeout(() => c.remove(), 2500);
+  }
+}
+
+// --- Krabs -------------------------------------------------------------------------
+let level = -1;
+function krabs(cost) {
+  const t = thresholds.length ? thresholds : [50, 200, 500, 1000];
+  let lvl = 0;
+  while (lvl < 4 && cost >= t[lvl]) lvl++;
+  if (lvl !== level) {
+    level = lvl;
+    krabsEl.dataset.level = lvl;
+    krabsEl.classList.remove("bump");
+    void krabsEl.offsetWidth; // relance l'animation
+    krabsEl.classList.add("bump");
+    const speech = document.getElementById("speech");
+    speech.textContent = PHRASES[lvl];
+    speech.classList.remove("show");
+    void speech.offsetWidth;
+    speech.classList.add("show");
+  }
+}
+
+// --- Boucle principale -------------------------------------------------------------
+const priceEl = document.getElementById("price");
+const metaEl = document.getElementById("meta");
+let lastMeta = "";
+
+function frame(now) {
+  moveGary(now);
+  const cost = meeting.cost;
+  const cur = meeting.s.currency;
+  priceEl.textContent = money(cost, cur);
+  const meta = `${meeting.s.participants} pers. · ${money(meeting.perMinute, cur)}/min · ${duration(meeting.elapsed)}`;
+  if (meta !== lastMeta) { metaEl.textContent = meta; lastMeta = meta; }
+  coins(cost);
+  krabs(cost);
+  requestAnimationFrame(frame);
+}
+
+async function init() {
+  await loadCustomImages();
+  if (SERVER && !thresholds.length) {
+    try { thresholds = (await api("/api/config")).krabs_thresholds; } catch {}
+  }
+  connect({ meeting: (m) => meeting.set(m) });
+  meetingKeys(meeting);
+  requestAnimationFrame(frame);
+}
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,9 @@
+config.json
+__pycache__/
+*.pyc
+.venv/
+# Images perso (personnages sous droits, photos de toi)
+web/assets/*
+!web/assets/.gitkeep
+avatar/expressions/*
+!avatar/expressions/.gitkeep

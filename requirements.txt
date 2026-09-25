@@ -1,0 +1,4 @@
+# Seulement pour l'avatar (python -m visiobot --avatar). Le compteur n'a besoin de rien.
+faster-whisper>=1.0
+sounddevice>=0.4.6
+numpy>=1.24

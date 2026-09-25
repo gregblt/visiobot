@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Avatar</title>
+<!--
+  Source navigateur OBS, 1080×1080 (ou ce que tu veux), fond transparent.
+  Nécessite `python -m visiobot --avatar`.
+  Les images viennent de avatar/expressions/ : <expression>.png, <expression>-parle.png (bouche ouverte,
+  facultatif), cligne.png (yeux fermés, facultatif). Voir avatar/README.md.
+  Paramètres d'URL : debug=1 (affiche l'expression et la dernière phrase), demo=1 (fait défiler les expressions).
+-->
+<link rel="stylesheet" href="avatar.css">
+</head>
+<body>
+<div id="avatar" class="anim-neutre">
+  <div class="motion">
+    <div class="talk">
+      <img id="face" alt="">
+      <img id="blink" alt="">
+      <div id="emoji"></div>
+    </div>
+  </div>
+  <div class="extra" id="extra"></div>
+</div>
+<div id="debug" hidden></div>
+
+<script src="common.js"></script>
+<script>
+const EMOJI = {
+  neutre: "😐", sourit: "🙂", rit: "😂", acquiesce: "😌", surpris: "😮", choque: "😱",
+  sceptique: "🤨", inquiet: "😟", reflechit: "🤔", ennuye: "😒", endormi: "😴",
+};
+const EXTRA = { endormi: "Z z z", reflechit: "…", surpris: "!", choque: "!!", sceptique: "?", rit: "HA HA" };
+
+let cfg = { files: {}, expressions: Object.keys(EMOJI), reaction_seconds: 4, talk_threshold: 0.02 };
+let expression = "neutre";
+let backTimer = null;
+let talking = false;
+let mouthOpen = false;
+
+const el = document.getElementById("avatar");
+const face = document.getElementById("face");
+const blink = document.getElementById("blink");
+const emoji = document.getElementById("emoji");
+const extra = document.getElementById("extra");
+const debug = document.getElementById("debug");
+debug.hidden = param("debug", "0") !== "1";
+
+function file(name) {
+  return cfg.files[name] ? "/expressions/" + cfg.files[name] : null;
+}
+
+function render() {
+  const base = file(expression) || file("neutre");
+  const talkImg = file(expression + "-parle") || (file(expression) ? null : file("neutre-parle"));
+  const src = talking && mouthOpen && talkImg ? talkImg : base;
+  if (src) {
+    if (face.getAttribute("src") !== src) face.src = src;
+    face.hidden = false;
+    emoji.hidden = true;
+  } else {
+    face.hidden = true;
+    emoji.hidden = false;
+    emoji.textContent = talking && mouthOpen ? "😮" : EMOJI[expression] || "🙂";
+  }
+  extra.textContent = EXTRA[expression] || "";
+}
+
+function setExpression(name, seconds) {
+  expression = name;
+  el.className = "anim-" + name;
+  void el.offsetWidth;
+  el.classList.add("enter");
+  render();
+  clearTimeout(backTimer);
+  if (seconds && name !== "neutre") {
+    backTimer = setTimeout(() => setExpression("neutre"), seconds * 1000);
+  }
+  debug.firstChild ? (debug.firstChild.textContent = name) : debug.append(name);
+}
+
+// Bouche : on alterne ouvert/fermé tant que tu parles.
+setInterval(() => {
+  mouthOpen = talking ? !mouthOpen : false;
+  render();
+}, 120);
+
+function onLevel(level) {
+  talking = level > cfg.talk_threshold;
+  el.style.setProperty("--level", Math.min(1, level * 8).toFixed(2));
+  el.classList.toggle("talking", talking);
+}
+
+// Clignement des yeux, si cligne.png existe (seulement en neutre / sourit).
+function scheduleBlink() {
+  setTimeout(() => {
+    const src = file(expression + "-cligne") || (["neutre", "sourit"].includes(expression) && file("cligne"));
+    if (src && !talking) {
+      blink.src = src;
+      blink.classList.add("on");
+      setTimeout(() => blink.classList.remove("on"), 140);
+    }
+    scheduleBlink();
+  }, 2500 + Math.random() * 3500);
+}
+
+async function init() {
+  if (SERVER) {
+    try { cfg = { ...cfg, ...(await api("/api/config")) }; } catch {}
+  }
+  setExpression("neutre");
+  scheduleBlink();
+  connect({
+    avatar: (a) => setExpression(a.expression, a.duration),
+    level: (l) => onLevel(l.level),
+    transcript: (t) => {
+      const p = document.createElement("div");
+      p.textContent = t.text;
+      debug.append(p);
+      while (debug.childNodes.length > 4) debug.childNodes[1].remove();
+    },
+  });
+  if (param("demo", "0") === "1") {
+    let i = 0;
+    setInterval(() => setExpression(cfg.expressions[++i % cfg.expressions.length]), 3000);
+  }
+}
+init();
+</script>
+</body>
+</html>
